@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import sys
 from utils import *
 
 LENGTH_PLAYER		= 202
@@ -10,7 +11,7 @@ LENGTH_FERENGIMARAUDER	= 1683
 LENGTH_DIRECTIONALLIGHT	= 863
 LENGTH_BLACKHOLE	= 827
 LENGTH_PLANET		= 827
-LENGTH_MOON		= 827
+LENGTH_MOON		= 851
 
 class Player:
 	def __init__(self, binary, debug=False):
@@ -18,22 +19,40 @@ class Player:
 
 		assert binary[0:4] == '\x00\x00\x00\x01'
 
-		self.name = binary[175:175+16].replace('\x00', '')	# 16 bytes
+		self.id = binary[175:175+17].replace('\x00', '')	# 16 bytes
 		if self.debug:
-			print self.name
+			print 'Player ('+str2hex(binary[:8])+' ... '+str2hex(binary[-8:])+'): '+self.id
 
 class Nebula:
 	def __init__(self, binary, debug=False):
 		self.debug = debug
 
-		self.type = binary[54:70]
-		self.name = binary[114:130]
-		self.title = binary[334:370]
+		self.type = binary[:11].strip()
+		self.id = binary[64:64+10].strip()
+		self.name = binary[279:279+32].strip()
 
 		if self.debug:
-			print 'nebula type = '+self.type
-			print 'nebula name = '+self.name
-			print 'nebula title = '+self.title
+			print 'Nebula ('+str2hex(binary[:8])+' ... '+str2hex(binary[-8:])+'): type='+self.type+', id='+self.id+', name='+self.name
+
+class Moon:
+	def __init__(self, binary, debug=False):
+		self.debug = debug
+
+		self.type = binary[:11].strip()
+		self.id = binary[64:64+10].strip()
+		self.name = binary[305:305+32].strip()
+
+		if self.debug:
+			print 'Moon   ('+str2hex(binary[:8])+' ... '+str2hex(binary[-8:])+'): type='+self.type+', id='+self.id+', name='+self.name
+
+class FerengiMarauder:
+	def __init__(self, binary, debug=False):
+		self.debug = debug
+
+		if self.debug:
+			print 'Ferengi Marauder: '+str2hex(binary[:8])+' ... '+str2hex(binary[-8:])
+
+
 
 class SAV:
 	def __init__(self, filename=None, debug=False):
@@ -105,14 +124,17 @@ class SAV:
 		# 0x00140b - 0x01d90e: nebulae
 		# varying counts, 827 bytes per nebula
 
+		self.f.read(54)	# unknown
+
 		self.nebulae = []
 		for i in range(18): # don't know the exact number
 			self.nebulae.append( Nebula(self.f.read(LENGTH_NEBULA), debug=self.debug) )
 
 		# 3x Ferengi Marauder
 
+		self.ferengi_marauders = []
 		for i in range(4):
-			self.f.read(LENGTH_FERENGIMARAUDER)
+			self.ferengi_marauders.append( FerengiMarauder(self.f.read(LENGTH_FERENGIMARAUDER), debug=self.debug) )
 
 		# Directional Light
 
@@ -128,26 +150,39 @@ class SAV:
 
 		# Dilithium Moon
 
-		self.f.read(LENGTH_MOON)
+		self.moons = []
+		self.moons.append( Moon( self.f.read(LENGTH_MOON), debug=self.debug ) )
 
 		# more nebulas
 
-		for i in range(5):
+		for i in range(110):
 			self.nebulae.append( Nebula(self.f.read(LENGTH_NEBULA), debug=self.debug) )
-
-		print str2hex(self.f.read(8))
 
 		# several (infinite) moons
 
+		for i in range(16):
+			self.moons.append( Moon( self.f.read(LENGTH_MOON), debug=self.debug ) )
+
 		# 0x020e26: Borg Dilithium Mining Station
+
+		self.f.read(1764)
 
 		# 0x02150e: Borg Sphere
 
+		self.f.read(1650)
+
 		# Klingon Sensor Array
+
+		self.f.read(1629)
 
 		# 3x Klingon construction something ...
 
+		for i in range(3):
+			self.f.read(843)
+
 		# Romulan Shrike Class
+
+		print str2hex(self.f.read(20))
 
 		# 8x information on the player's resources (?)
 
@@ -176,9 +211,8 @@ class SAV:
 
 
 if __name__ == '__main__':
-	from sys import argv
-	if len(argv) > 1:
-		sav = SAV(argv[1], debug=True)
+	if len(sys.argv) > 1:
+		sav = SAV(sys.argv[1], debug=True)
 	else:
 		sav = SAV('games/s11.sav', debug=True)
 #	sav.saveas('test.sav')
