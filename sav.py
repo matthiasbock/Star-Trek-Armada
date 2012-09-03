@@ -101,6 +101,8 @@ class SAV:
 
 		# moons
 
+		print str2hex(self.f.read(20))
+
 
 	def save(self):
 		# write back to file, once it works
