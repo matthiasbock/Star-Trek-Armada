@@ -99,10 +99,46 @@ class SAV:
 		for i in range(18): # don't know the exact number
 			self.nebulae.append( Nebula(self.f.read(827), debug=self.debug) )
 
-		# moons
+		# 3x Ferengi Marauder
 
-		print str2hex(self.f.read(20))
+		# Directional Light
 
+		# Black Hole
+
+		# Beta Lankal
+
+		# Dilithium Moon
+
+		# more nebulas
+
+		# several (infinite) moons
+
+		# 0x020e26: Borg Dilithium Mining Station
+
+		# 0x02150e: Borg Sphere
+
+		# Klingon Sensor Array
+
+		# 3x Klingon construction something ...
+
+		# Romulan Shrike Class
+
+		# 8x information on the player's resources (?)
+
+		# Mission description
+
+		# information on ongoing "processes"
+		# e.g. CraftProcess, StarbaseProcess, SalvageProcess
+
+		# 8x Camera setup
+
+		# many, many instances of unknown information
+
+		# 8x (?): AI setup
+
+		# summary of nebulas and moons (?)
+
+		# EOF
 
 	def save(self):
 		# write back to file, once it works
@@ -115,6 +151,6 @@ class SAV:
 
 if __name__ == '__main__':
 	import sys
-	sav = SAV(sys.argv[1], debug=True)
-	sav.saveas('test.sav')
+	sav = SAV('games/sav11.sav', debug=True)
+#	sav.saveas('test.sav')
 
