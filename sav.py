@@ -163,11 +163,14 @@ class SAV:
 		for i in range(16):
 			self.moons.append( Moon( self.f.read(LENGTH_MOON), debug=self.debug ) )
 
-		# 0x020e26: Borg Dilithium Mining Station
+
+		# fcruise: Akira Class Starship, 1650 bytes
+
+		# bmining: Borg Processing Node (Dilithium Mining Station)
 
 		self.f.read(1764)
 
-		# 0x02150e: Borg Sphere
+		# bcruise: Borg Sphere, 1650 bytes
 
 		self.f.read(1650)
 
@@ -182,9 +185,11 @@ class SAV:
 
 		# Romulan Shrike Class
 
-		print str2hex(self.f.read(20))
+		self.f.read(1650)
 
-		# 8x information on the player's resources (?)
+		# 9x/10x information on the player's resources (?)
+
+		print str2hex(self.f.read(20))
 
 		# Mission description
 
